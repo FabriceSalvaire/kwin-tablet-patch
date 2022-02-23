@@ -17,7 +17,7 @@
 
 Name:    kwin
 Version: 5.24.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: KDE Window manager
 
 # all sources are effectively GPLv2+, except for:
@@ -37,6 +37,8 @@ URL:     https://userbase.kde.org/KWin
 Source0: http://download.kde.org/%{stable}/plasma/%{version}/%{name}-%{version}.tar.xz
 
 ## upstream patches
+#  https://bugs.kde.org/show_bug.cgi?id=449273
+Patch1: 0001-Revert-Remove-mysterious-s_cursorUpdateBlocking-bool.patch
 
 ## proposed patches
 
@@ -368,6 +370,9 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 
 
 %changelog
+* Wed Feb 23 2022 Rex Dieter <rdieter@fedoraproject.org> - 5.24.2-2
+- pull in upstream fix for https://bugs.kde.org/show_bug.cgi?id=449273
+
 * Tue Feb 22 2022 Rex Dieter <rdieter@fedoraproject.org> - 5.24.2-1
 - 5.24.2
 
