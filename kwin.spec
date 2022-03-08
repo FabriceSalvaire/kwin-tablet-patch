@@ -37,8 +37,6 @@ URL:     https://userbase.kde.org/KWin
 Source0: http://download.kde.org/%{stable}/plasma/%{version}/%{name}-%{version}.tar.xz
 
 ## upstream patches
-#  https://bugs.kde.org/show_bug.cgi?id=449273
-Patch1: 0001-Revert-Remove-mysterious-s_cursorUpdateBlocking-bool.patch
 
 ## proposed patches
 
