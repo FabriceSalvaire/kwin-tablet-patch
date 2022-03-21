@@ -17,7 +17,7 @@
 
 Name:    kwin
 Version: 5.24.3
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: KDE Window manager
 
 # all sources are effectively GPLv2+, except for:
@@ -39,6 +39,12 @@ Source0: http://download.kde.org/%{stable}/plasma/%{version}/%{name}-%{version}.
 ## upstream patches
 
 ## proposed patches
+
+# Fallback to legacy mode in VMs to fix cursor offset bug:
+# https://invent.kde.org/plasma/kwin/-/merge_requests/2163
+# https://bugzilla.redhat.com/show_bug.cgi?id=2063969
+# edited to add 'vboxvideo' for VirtualBox
+Patch0: 2163-edited.patch
 
 # Base
 BuildRequires:  extra-cmake-modules
@@ -368,6 +374,9 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 
 
 %changelog
+* Mon Mar 21 2022 Adam Williamson <awilliam@redhat.com> - 5.24.3-3
+- Backport MR #2163 (edited to cover vbox) to fix VM cursor offset (#2063969)
+
 * Thu Mar 10 2022 Marc Deop <marcdeop@fedoraproejct.org> - 5.24.3-2
 - Rebuild (qt5)
 
