@@ -17,7 +17,7 @@
 
 Name:    kwin
 Version: 5.24.3
-Release: 3%{?dist}
+Release: 4%{?dist}
 Summary: KDE Window manager
 
 # all sources are effectively GPLv2+, except for:
@@ -374,6 +374,9 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 
 
 %changelog
+* Tue Mar 22 2022 Jan Grulich <jgrulich@redhat.com> - 5.24.3-4
+- Rebuild (qt5)
+
 * Mon Mar 21 2022 Adam Williamson <awilliam@redhat.com> - 5.24.3-3
 - Backport MR #2163 (edited to cover vbox) to fix VM cursor offset (#2063969)
 
