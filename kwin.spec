@@ -40,12 +40,6 @@ Source0: http://download.kde.org/%{stable}/plasma/%{version}/%{name}-%{version}.
 
 ## proposed patches
 
-# Fallback to legacy mode in VMs to fix cursor offset bug:
-# https://invent.kde.org/plasma/kwin/-/merge_requests/2163
-# https://bugzilla.redhat.com/show_bug.cgi?id=2063969
-# edited to add 'vboxvideo' for VirtualBox
-Patch0: 2163-edited.patch
-
 # Base
 BuildRequires:  extra-cmake-modules
 BuildRequires:  kf5-rpm-macros
@@ -375,7 +369,7 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 
 %changelog
 * Thu Mar 31 2022 Justin Zobel <justin@1707.io> - 5.24.4-1
-- Update to 5.24.4
+- Update to 5.24.4 and remove patch
 
 * Mon Mar 21 2022 Adam Williamson <awilliam@redhat.com> - 5.24.3-3
 - Backport MR #2163 (edited to cover vbox) to fix VM cursor offset (#2063969)
