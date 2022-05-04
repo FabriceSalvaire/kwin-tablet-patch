@@ -16,7 +16,7 @@
 %endif
 
 Name:    kwin
-Version: 5.24.4
+Version: 5.24.5
 Release: 1%{?dist}
 Summary: KDE Window manager
 
@@ -368,11 +368,11 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 
 
 %changelog
-* Thu Mar 31 2022 Justin Zobel <justin@1707.io> - 5.24.4-1
-- Update to 5.24.4
+* Tue May 03 2022 Marc Deop <marcdeop@fedoraproject.org> - 5.24.5-1
+- 5.24.5
 
-* Tue Mar 22 2022 Jan Grulich <jgrulich@redhat.com> - 5.24.3-4
-- Rebuild (qt5)
+* Thu Mar 31 2022 Justin Zobel <justin@1707.io> - 5.24.4-1
+- Update to 5.24.4 and remove patch
 
 * Mon Mar 21 2022 Adam Williamson <awilliam@redhat.com> - 5.24.3-3
 - Backport MR #2163 (edited to cover vbox) to fix VM cursor offset (#2063969)
