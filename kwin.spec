@@ -58,6 +58,7 @@ BuildRequires:  qt5-qtx11extras-devel
 BuildRequires:  qt5-qtwayland-devel
 
 # X11/OpenGL
+BuildRequires:  pkgconfig(libxcvt)
 BuildRequires:  mesa-libGL-devel
 BuildRequires:  mesa-libEGL-devel
 BuildRequires:  mesa-libgbm-devel
