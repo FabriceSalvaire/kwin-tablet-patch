@@ -16,8 +16,8 @@
 %endif
 
 Name:    kwin
-Version: 5.24.5
-Release: 2%{?dist}
+Version: 5.24.90
+Release: 1%{?dist}
 Summary: KDE Window manager
 
 # all sources are effectively GPLv2+, except for:
@@ -121,7 +121,6 @@ BuildRequires:  kdecoration-devel >= %{majmin_ver}
 BuildRequires:  kscreenlocker-devel >= %{majmin_ver}
 BuildRequires:  plasma-breeze-devel >= %{majmin_ver}
 BuildRequires:  plasma-wayland-protocols-devel
-BuildRequires:  kwayland-server-devel >= %{majmin_ver}
 
 %if 0%{?tests}
 BuildRequires: dbus-x11
@@ -174,7 +173,6 @@ Summary:        KDE Window Manager with Wayland support
 Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
 Requires:       %{name}-common%{?_isa} = %{version}-%{release}
 Requires:       kwayland-integration%{?_isa} >= %{majmin_ver}
-Requires:       kwayland-server%{?_isa} >= %{majmin_ver}
 %if ! 0%{?bootstrap}
 BuildRequires:  xorg-x11-server-Xwayland
 %endif
@@ -212,7 +210,7 @@ Provides:       firstboot(windowmanager) = kwin_x11
 %package        common
 Summary:        Common files for KWin X11 and KWin Wayland
 Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
-Requires:       kf5-kwayland%{?_isa} >= %{_kf5_version}
+Requires:       kf5-kwayland%{?_isa} >= 5.91.0
 # Split of X11 variant into subpackage
 Obsoletes:      %{name}-common < 5.19.5-3
 %description    common
@@ -291,13 +289,15 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 
 %files common -f kwin5.lang
 %{_datadir}/kwin
-%{_kf5_qtplugindir}/*.so
+%{_kf5_qtplugindir}/plasma/kcms/systemsettings/*.so
+%{_kf5_qtplugindir}/plasma/kcms/systemsettings_qwidgets/*.so
 %{_kf5_qtplugindir}/kwin/
-%{_kf5_qtplugindir}/kcms/
 %{_kf5_qtplugindir}/kpackage/packagestructure/
 %{_kf5_qtplugindir}/org.kde.kdecoration2/*.so
 %dir %{_kf5_qtplugindir}/org.kde.kwin.platforms
 %{_qt5_qmldir}/org/kde/kwin
+%{_qt5_qmldir}/org/kde/kwin.2/qmldir
+%{_qt5_qmldir}/org/kde/kwin.2/DesktopThumbnailItem.qml
 %{_kf5_libdir}/kconf_update_bin/kwin5_update_default_rules
 %{_libexecdir}/kwin_killer_helper
 %{_libexecdir}/kwin_rules_dialog
@@ -324,16 +324,16 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 %{_kf5_datadir}/config.kcfg/kwin_colorcorrect.kcfg
 %{_kf5_datadir}/kconf_update/kwinrules-5.19-placement.pl
 %{_kf5_datadir}/kconf_update/kwinrules.upd
+%{_kf5_datadir}/kconf_update/kwin-5.25-effect-pluginid-config-group.py
 %{_datadir}/icons/hicolor/*/apps/kwin.*
 %{_datadir}/knsrcfiles/*.knsrc
 %{_datadir}/krunner/dbusplugins/kwin-runner-windows.desktop
-%{_datadir}/applications/org.kde.kwin_rules_dialog.desktop
+%{_datadir}/applications/*.desktop
 
 %files wayland
 %{_bindir}/kwin_wayland_wrapper
 %{_kf5_bindir}/kwin_wayland
 %{_kf5_qtplugindir}/org.kde.kwin.waylandbackends/KWinWaylandDrmBackend.so
-%{_kf5_qtplugindir}/org.kde.kwin.waylandbackends/KWinWaylandFbdevBackend.so
 %{_kf5_qtplugindir}/org.kde.kwin.waylandbackends/KWinWaylandWaylandBackend.so
 %{_kf5_qtplugindir}/org.kde.kwin.waylandbackends/KWinWaylandX11Backend.so
 %{_kf5_qtplugindir}/org.kde.kwin.waylandbackends/KWinWaylandVirtualBackend.so
@@ -353,7 +353,6 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 %{_libdir}/libkwineffects.so.*
 %{_libdir}/libkwinglutils.so.*
 %{_libdir}/libkcmkwincommon.so.*
-%{_qt5_plugindir}/kcms/kcm_kwin_virtualdesktops.so
 
 %files devel
 %{_datadir}/dbus-1/interfaces/*.xml
@@ -369,6 +368,10 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 
 
 %changelog
+* Fri May 20 2022 Marc Deop <marcdeop@fedoraproject.org> - 5.24.90-1
+- 5.24.90
+- remove kwayland-server dependency
+
 * Tue May 17 2022 Jan Grulich <jgrulich@redhat.com> - 5.24.5-2
 - Rebuild (qt5)
 
