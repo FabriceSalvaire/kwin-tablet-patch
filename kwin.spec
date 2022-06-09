@@ -16,7 +16,7 @@
 %endif
 
 Name:    kwin
-Version: 5.24.90
+Version: 5.25.0
 Release: 1%{?dist}
 Summary: KDE Window manager
 
@@ -368,6 +368,9 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 
 
 %changelog
+* Thu Jun 09 2022 Marc Deop <marcdeop@fedoraproject.org> - 5.25.0-1
+- 5.25.0
+
 * Fri May 20 2022 Marc Deop <marcdeop@fedoraproject.org> - 5.24.90-1
 - 5.24.90
 - remove kwayland-server dependency
