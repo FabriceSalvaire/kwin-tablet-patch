@@ -16,7 +16,7 @@
 %endif
 
 Name:    kwin
-Version: 5.25.5
+Version: 5.25.90
 Release: 1%{?dist}
 Summary: KDE Window manager
 
@@ -294,7 +294,6 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 %{_kf5_qtplugindir}/kwin/
 %{_kf5_qtplugindir}/kpackage/packagestructure/
 %{_kf5_qtplugindir}/org.kde.kdecoration2/*.so
-%dir %{_kf5_qtplugindir}/org.kde.kwin.platforms
 %{_qt5_qmldir}/org/kde/kwin
 %{_qt5_qmldir}/org/kde/kwin.2/qmldir
 %{_qt5_qmldir}/org/kde/kwin.2/DesktopThumbnailItem.qml
@@ -313,7 +312,6 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 %{_datadir}/kconf_update/kwin-5.23-remove-flip-switch.py
 %{_datadir}/kconf_update/kwin-5.23-remove-xrender-backend.py
 %{_datadir}/kconf_update/kwinrules-5.23-virtual-desktop-ids.py
-%{_kf5_datadir}/kservices5/*.desktop
 %{_kf5_datadir}/kservices5/kwin
 %{_kf5_datadir}/kservicetypes5/*.desktop
 %{_kf5_datadir}/kpackage/kcms/kcm_*
@@ -333,15 +331,10 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 %files wayland
 %{_bindir}/kwin_wayland_wrapper
 %{_kf5_bindir}/kwin_wayland
-%{_kf5_qtplugindir}/org.kde.kwin.waylandbackends/KWinWaylandDrmBackend.so
-%{_kf5_qtplugindir}/org.kde.kwin.waylandbackends/KWinWaylandWaylandBackend.so
-%{_kf5_qtplugindir}/org.kde.kwin.waylandbackends/KWinWaylandX11Backend.so
-%{_kf5_qtplugindir}/org.kde.kwin.waylandbackends/KWinWaylandVirtualBackend.so
 %{_userunitdir}/plasma-kwin_wayland.service
 
 %files x11
 %{_kf5_bindir}/kwin_x11
-%{_kf5_qtplugindir}/org.kde.kwin.platforms/KWinX11Platform.so
 %{_userunitdir}/plasma-kwin_x11.service
 
 %ldconfig_scriptlets libs
@@ -349,7 +342,6 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 %files libs
 %{_kf5_datadir}/qlogging-categories5/org_kde_kwin.categories
 %{_libdir}/libkwin.so.*
-%{_libdir}/libkwinxrenderutils.so.*
 %{_libdir}/libkwineffects.so.*
 %{_libdir}/libkwinglutils.so.*
 %{_libdir}/libkcmkwincommon.so.*
@@ -358,7 +350,6 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 %{_datadir}/dbus-1/interfaces/*.xml
 %{_libdir}/cmake/KWinDBusInterface
 %{_libdir}/cmake/KWinEffects
-%{_libdir}/libkwinxrenderutils.so
 %{_libdir}/libkwineffects.so
 %{_libdir}/libkwinglutils.so
 %{_includedir}/kwin*.h
@@ -368,6 +359,9 @@ make test ARGS="--output-on-failure --timeout 10" -C %{_target_platform} ||:
 
 
 %changelog
+* Sat Sep 17 2022 Marc Deop <marcdeop@fedoraproject.org> - 5.25.90-1
+- 5.25.90
+
 * Wed Sep 07 2022 Marc Deop <marcdeop@fedoraproject.org> - 5.25.5-1
 - 5.25.5
 
