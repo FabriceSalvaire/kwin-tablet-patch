@@ -253,8 +253,6 @@ sed -i \
   -e 's|^find_package(Breeze ${PROJECT_VERSION} CONFIG)|find_package(Breeze 5.9 CONFIG)|' \
   CMakeLists.txt
 
-%patch0 -p1
-
 %build
 %cmake_kf5 \
   -DBUILD_TESTING:BOOL=%{?tests:ON}%{!?tests:OFF}
