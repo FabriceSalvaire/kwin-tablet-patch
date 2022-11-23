@@ -35,6 +35,7 @@ URL:     https://userbase.kde.org/KWin
 %global stable stable
 %endif
 Source0: http://download.kde.org/%{stable}/plasma/%{version}/%{name}-%{version}.tar.xz
+Patch0: tablet.patch
 
 ## upstream patches
 
@@ -252,6 +253,7 @@ sed -i \
   -e 's|^find_package(Breeze ${PROJECT_VERSION} CONFIG)|find_package(Breeze 5.9 CONFIG)|' \
   CMakeLists.txt
 
+%patch0 -p1
 
 %build
 %cmake_kf5 \

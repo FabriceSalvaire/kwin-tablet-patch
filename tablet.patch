@@ -1,0 +1,157 @@
+diff --git a/src/input.cpp b/src/input.cpp
+index b8e4ea9ff..908a8cea0 100644
+--- a/src/input.cpp
++++ b/src/input.cpp
+@@ -2004,9 +2004,10 @@ public:
+             const int ringsCount = libinput_device_tablet_pad_get_num_rings(device->device());
+             const int stripsCount = libinput_device_tablet_pad_get_num_strips(device->device());
+             const int modes = libinput_device_tablet_pad_get_num_mode_groups(device->device());
+-
+             auto firstGroup = libinput_device_tablet_pad_get_mode_group(device->device(), 0);
+-            tabletSeat->addTabletPad(device->sysName(), device->name(), {QString::fromUtf8(devnode)}, buttonsCount, ringsCount, stripsCount, modes, libinput_tablet_pad_mode_group_get_mode(firstGroup), tablet);
++            // Fixme: Is there tablet with more than one ???
++            const int currentMode = libinput_tablet_pad_mode_group_get_mode(firstGroup);
++            tabletSeat->addTabletPad(device->sysName(), device->name(), {QString::fromUtf8(devnode)}, buttonsCount, ringsCount, stripsCount, modes, currentMode, tablet);
+         }
+     }
+ 
+@@ -2106,6 +2107,7 @@ public:
+             case InputRedirection::Wheel:
+                 return TabletToolV2Interface::Wheel;
+             }
++            // Fixme: default ???
+             return TabletToolV2Interface::Wheel;
+         };
+         QVector<TabletToolV2Interface::Capability> ifaceCapabilities;
+@@ -2205,8 +2207,22 @@ public:
+             qCWarning(KWIN_CORE) << "Unexpected tablet event type" << event;
+             break;
+         }
++        // libinput return some axes normalized to the range [0, 1]
+         const quint32 MAX_VAL = 65535;
+-        tool->sendPressure(MAX_VAL * event->pressure());
++        if (tool->hasCapability(TabletToolV2Interface::Distance)) {
++            tool->sendDistance(MAX_VAL * event->distance());
++        }
++        if (tool->hasCapability(TabletToolV2Interface::Pressure)) {
++            tool->sendPressure(MAX_VAL * event->pressure());
++        }
++        if (tool->hasCapability(TabletToolV2Interface::Tilt)) {
++            tool->sendTilt(event->xTilt(), event->yTilt());
++        }
++        if (tool->hasCapability(TabletToolV2Interface::Rotation)) {
++            tool->sendRotation(event->rotation());
++        }
++        // Is Wacom Airbrush slider similar to a button event ???
++        // Wheel ???
+         tool->sendFrame(event->timestamp());
+         return true;
+     }
+@@ -2283,6 +2299,7 @@ public:
+ 
+     bool tabletPadRingEvent(int number, int angle, bool isFinger, const TabletPadId &tabletPadId, uint time) override
+     {
++        // Fixme: event is seen on KWin Debugger 
+         auto pad = findAndAdoptPad(tabletPadId);
+         if (!pad) {
+             return false;
+diff --git a/src/wayland/tablet_v2_interface.cpp b/src/wayland/tablet_v2_interface.cpp
+index cf9896002..1d93af2e1 100644
+--- a/src/wayland/tablet_v2_interface.cpp
++++ b/src/wayland/tablet_v2_interface.cpp
+@@ -137,8 +137,12 @@ public:
+         , m_hardwareIdHigh(hih)
+         , m_hardwareIdLow(hil)
+         , m_capabilities(capabilities)
++        , m_capabilitiesBitField(0)
+         , q(q)
+     {
++        for (uint8_t cap : std::as_const(m_capabilities)) {
++            m_capabilitiesBitField += 1 << cap ;
++        }
+     }
+ 
+     wl_resource *targetResource()
+@@ -197,6 +201,7 @@ public:
+     const uint32_t m_hardwareSerialHigh, m_hardwareSerialLow;
+     const uint32_t m_hardwareIdHigh, m_hardwareIdLow;
+     const QVector<TabletToolV2Interface::Capability> m_capabilities;
++    const uint8_t m_capabilitiesBitField;
+     QHash<wl_resource *, TabletCursorV2 *> m_cursors;
+     TabletToolV2Interface *const q;
+ };
+@@ -222,6 +227,10 @@ TabletToolV2Interface::~TabletToolV2Interface()
+     }
+ }
+ 
++bool TabletToolV2Interface::hasCapability(Capability capability) const {
++    return d->m_capabilitiesBitField & (1 << capability);
++}
++
+ void TabletToolV2Interface::setCurrentSurface(SurfaceInterface *surface)
+ {
+     if (d->m_surface == surface)
+@@ -469,10 +478,12 @@ TabletPadGroupV2Interface::TabletPadGroupV2Interface(quint32 currentMode, Tablet
+ 
+ TabletPadGroupV2Interface::~TabletPadGroupV2Interface() = default;
+ 
++// Fixme: code is unused
+ void TabletPadGroupV2Interface::sendModeSwitch(quint32 time, quint32 serial, quint32 mode)
+ {
+     d->m_currentMode = mode;
+     d->send_mode_switch(d->resourceForSurface(d->m_pad->currentSurface()), time, serial, mode);
++    // TODO: see https://wayland.app/protocols/tablet-unstable-v2#zwp_tablet_pad_strip_v2:request:set_feedback
+ }
+ 
+ class TabletPadV2InterfacePrivate : public QtWaylandServer::zwp_tablet_pad_v2
+@@ -667,6 +678,7 @@ public:
+ 
+     void sendPadAdded(Resource *resource, TabletPadV2Interface *pad)
+     {
++        // Fixme: code quality !!! many occurences of pad->d
+         wl_resource *tabletResource = pad->d->add(resource->client(), resource->version())->handle;
+         send_pad_added(resource->handle, tabletResource);
+ 
+@@ -675,8 +687,29 @@ public:
+ 
+         auto groupResource = pad->d->m_padGroup->d->add(resource->client(), resource->version());
+         pad->d->send_group(tabletResource, groupResource->handle);
++
++        // Fixme: I don't see messages in log until pad done on Fedora 36 kwin-wayland-5.25.5-1.fc36.x86_64
++        // [ 190389.547] zwp_tablet_pad_v2@4278190081.group(new id zwp_tablet_pad_group_v2@4278190082)
++        // [ 190389.589] zwp_tablet_pad_v2@4278190081.done()
++        // but Mutter reports
++        // [3209848.577] zwp_tablet_pad_v2@4278190081.group(new id zwp_tablet_pad_group_v2@4278190082)
++        // [3209848.586] zwp_tablet_pad_group_v2@4278190082.buttons(array[36])
++        // [3209848.595] zwp_tablet_pad_group_v2@4278190082.ring(new id zwp_tablet_pad_ring_v2@4278190083)
++        // [3209848.602] zwp_tablet_pad_group_v2@4278190082.modes(4)
++        // [3209848.608] zwp_tablet_pad_group_v2@4278190082.done()
++
++        // Fixme: This event is only sent when more than more than one mode is available. ???
+         pad->d->m_padGroup->d->send_modes(groupResource->handle, pad->d->m_modes);
+ 
++        // Fixme: send initial/current mode
++        //   https://wayland.app/protocols/tablet-unstable-v2#zwp_tablet_pad_group_v2
++        //   doesn't gives hint how to send the current mode !!!
++        //   should we send a fake switch ???
++        // QtWaylandServer::zwp_tablet_pad_group_v2
++        // pad->d->m_padGroup->d->currentMode
++        // QDateTime::currentMSecsSinceEpoch()
++        // pad->send_mode_switch(d->resourceForSurface(d->m_pad->currentSurface()), time, serial, mode);
++
+         pad->d->m_padGroup->d->send_buttons(
+             groupResource->handle,
+             QByteArray::fromRawData(reinterpret_cast<const char *>(pad->d->m_buttons.data()), pad->d->m_buttons.size() * sizeof(quint32)));
+diff --git a/src/wayland/tablet_v2_interface.h b/src/wayland/tablet_v2_interface.h
+index 15de1c3c2..2edf9b21f 100644
+--- a/src/wayland/tablet_v2_interface.h
++++ b/src/wayland/tablet_v2_interface.h
+@@ -83,6 +83,8 @@ public:
+     };
+     Q_ENUM(Capability)
+ 
++    bool hasCapapility(Capability capability) const;
++
+     /**
+      * Sets the surface the events will be sent to.
+      *
